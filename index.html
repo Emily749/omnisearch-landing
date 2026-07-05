@@ -4,12 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OmniSearch | Enterprise Biosafety-Verified Retail</title>
+    <meta name="description" content="OmniSearch delivers enterprise-grade, automated biosafety verification for food retailers. Request a pilot today.">
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
-        <div class="logo">OmniSearch</div>
+        <div class="brand">
+            <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+                <rect width="30" height="30" rx="8" fill="#14b8a6"/>
+                <path d="M15 6.5L22 11V19L15 23.5L8 19V11L15 6.5Z" stroke="#0a0e1a" stroke-width="1.6"/>
+                <circle cx="15" cy="15" r="2.8" fill="#0a0e1a"/>
+            </svg>
+            OmniSearch
+        </div>
         <nav>
             <a href="#pilot" class="btn-primary">Request a Pilot</a>
         </nav>
@@ -17,32 +25,57 @@
 
     <main>
         <section class="hero">
-            <h1>Redefining dietary safety for the modern food retail landscape.</h1>
-            <p>OmniSearch provides enterprise-grade, automated biosafety verification for retailers of all scales. Built by a coeliac engineer to turn complex compliance into a premium customer experience.</p>
-        </section>
-
-        <section id="demo" class="demo-section">
-            <h2>From Raw Data to Verified Confidence</h2>
-            <div class="comparison-placeholder">
-                <div class="box">Standard Data: Unfiltered & Complex</div>
-                <div class="box highlight">OmniSearch: Intelligent, Real-Time Safety</div>
+            <span class="eyebrow">Enterprise Biosafety Layer</span>
+            <h1>Redefining dietary safety for the modern <span class="accent">food retail</span> landscape.</h1>
+            <p>OmniSearch gives your store enterprise-grade, automated biosafety verification. Built by a coeliac engineer to turn complex compliance into a premium customer experience.</p>
+            <div class="hero-actions">
+                <a href="#pilot" class="btn-primary">Request a Pilot</a>
+                <a href="#demo" class="btn-ghost">See the Difference</a>
             </div>
         </section>
 
-        <section id="pilot" class="pilot-section" style="padding: 100px 10%;">
-            <h2 style="text-align: center;">Ready to transform your store?</h2>
+        <div class="stats-strip">
+            <div class="stat"><div class="num">12,000+</div><div class="label">Allergen records checked</div></div>
+            <div class="stat"><div class="num">&lt;1s</div><div class="label">Average verification time</div></div>
+            <div class="stat"><div class="num">99.9%</div><div class="label">Uptime at the edge</div></div>
+        </div>
+
+        <section id="demo" class="demo-section">
+            <h2>From Raw Data to Verified Confidence</h2>
+            <p class="sub">The same product, before and after OmniSearch processes it.</p>
+            <div class="comparison-placeholder">
+                <div class="box danger">
+                    <span class="tag">Before</span>
+                    <p class="badge-line">Unfiltered ingredient data</p>
+                    <p>Wheat flour, sugar, natural flavoring, soy lecithin, may contain traces of nuts. No allergen summary. No safety flag.</p>
+                </div>
+                <div class="box highlight">
+                    <span class="tag">After</span>
+                    <p class="badge-line">Biosafety Verified: Coeliac Safe</p>
+                    <p>Checked against 12,000+ allergen records. No gluten. No cross contamination trace. Verified in under one second.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="pilot" class="pilot-section">
+            <h2>Ready to transform your store?</h2>
+            <p class="sub">Join our pilot program and give your customers a safer, faster shopping experience.</p>
             <form action="https://formspree.io/f/xaqgvjez" method="POST">
                 <input type="text" name="name" placeholder="Name" required>
                 <input type="email" name="email" placeholder="Email" required>
                 <input type="text" name="store" placeholder="Organization / Store Name" required>
                 <textarea name="message" placeholder="A bit about your requirements..."></textarea>
-                <button type="submit" class="btn-primary" style="border: none; cursor: pointer;">Request a Pilot</button>
+                <button type="submit" class="btn-primary">Request a Pilot</button>
             </form>
         </section>
     </main>
 
     <footer>
-        <p>&copy; 2026 OmniSearch. <a href="terms.html">Terms of Service</a> | <a href="integration.html">Integration Guide</a></p>
+        <span>&copy; 2026 OmniSearch. All rights reserved.</span>
+        <div>
+            <a href="terms.html">Terms of Service</a>
+            <a href="integration.html">Integration Guide</a>
+        </div>
     </footer>
 </body>
 </html>

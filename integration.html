@@ -2,19 +2,50 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Integration Guide | OmniSearch</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <main style="max-width: 800px; margin: 40px auto; padding: 20px;">
+    <header>
+        <div class="brand">
+            <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+                <rect width="30" height="30" rx="8" fill="#14b8a6"/>
+                <path d="M15 6.5L22 11V19L15 23.5L8 19V11L15 6.5Z" stroke="#0a0e1a" stroke-width="1.6"/>
+                <circle cx="15" cy="15" r="2.8" fill="#0a0e1a"/>
+            </svg>
+            OmniSearch
+        </div>
+        <nav>
+            <a href="index.html#pilot" class="btn-primary">Request a Pilot</a>
+        </nav>
+    </header>
+
+    <main class="page-main">
         <h1>Integration Guide</h1>
-        <p>Adding OmniSearch to your store takes seconds[cite: 2]:</p>
-        <ol>
+        <p class="updated">Adding OmniSearch to your store takes minutes.</p>
+
+        <ol class="step-list">
             <li>Copy the script snippet provided upon pilot approval.</li>
             <li>Paste it into the <code>&lt;head&gt;</code> section of your store's theme.</li>
-            <li>OmniSearch automatically scans your product pages[cite: 2].</li>
+            <li>OmniSearch automatically scans your product pages and renders safety badges next to each item.</li>
         </ol>
-        <a href="index.html">&larr; Back to Home</a>
+
+        <h2>Platform Notes</h2>
+        <p><strong>Shopify:</strong> paste the snippet into theme.liquid, above the closing body tag.</p>
+        <p><strong>WooCommerce:</strong> paste the snippet into your theme's footer.php file, or add through a header and footer plugin.</p>
+        <p><strong>Custom sites:</strong> paste the snippet into your root layout or shared footer component.</p>
+
+        <a href="index.html" class="back-link">&larr; Back to Home</a>
     </main>
+
+    <footer>
+        <span>&copy; 2026 OmniSearch. All rights reserved.</span>
+        <div>
+            <a href="terms.html">Terms of Service</a>
+            <a href="index.html">Home</a>
+        </div>
+    </footer>
 </body>
 </html>
