@@ -8,9 +8,19 @@ const PROTECTED_PREFIXES = ["/shop", "/profile", "/onboarding"];
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error(
+      "Supabase env vars are missing — skipping auth. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."
+    );
+    return response;
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         getAll() {
@@ -27,9 +37,13 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+  try {
+    const result = await supabase.auth.getUser();
+    user = result.data.user;
+  } catch (error) {
+    console.error("Supabase auth check failed — treating request as signed out.", error);
+  }
 
   const isProtected = PROTECTED_PREFIXES.some((prefix) =>
     request.nextUrl.pathname.startsWith(prefix)

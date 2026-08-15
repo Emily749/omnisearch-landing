@@ -4,10 +4,14 @@ import { LogoMark } from "./LogoMark";
 import { SignOutButton } from "./SignOutButton";
 
 export async function NavBar() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+  try {
+    const supabase = await createClient();
+    const result = await supabase.auth.getUser();
+    user = result.data.user;
+  } catch (error) {
+    console.error("NavBar: Supabase auth check failed — rendering signed-out state.", error);
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-ink/85 backdrop-blur-md">
