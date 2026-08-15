@@ -99,12 +99,6 @@ const FODMAP_GRAINS = /\b(wheat|barley|rye)\b/i;
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_REQUESTS = Number(process.env.TRUSTTAG_RATE_LIMIT_PER_MINUTE || '120');
-const ALLOWED_ORIGINS = new Set(
-  (process.env.TRUSTTAG_ALLOWED_ORIGINS || 'http://localhost:3000,http://127.0.0.1:3000')
-    .split(',')
-    .map((origin) => origin.trim())
-    .filter(Boolean)
-);
 
 declare global {
   var __trusttagRateLimiter: Map<string, RateLimitState> | undefined;
@@ -121,10 +115,13 @@ function getClientIp(request: Request): string {
   return forwarded.split(',')[0]?.trim() || 'unknown';
 }
 
+// This endpoint is gated by TRUSTTAG_EXTENSION_KEY, not cookies, and its
+// only legitimate caller (the browser companion) runs inside whichever
+// retailer's page a user happens to be on — an origin we can't enumerate
+// in advance. So we reflect whatever origin asks, and let the API key +
+// rate limit be the actual gate.
 function resolveCorsOrigin(request: Request): string | null {
-  const origin = request.headers.get('origin');
-  if (!origin) return null;
-  return ALLOWED_ORIGINS.has(origin) ? origin : null;
+  return request.headers.get('origin');
 }
 
 function withCors(request: Request, response: NextResponse) {
@@ -317,19 +314,11 @@ function evaluateDietaryConstraints({
 }
 
 export async function OPTIONS(request: Request) {
-  const origin = request.headers.get('origin');
-  if (origin && !resolveCorsOrigin(request)) {
-    return withCors(request, NextResponse.json({ error: 'Origin not allowed.' }, { status: 403 }));
-  }
   return withCors(request, new NextResponse(null, { status: 204 }));
 }
 
 export async function POST(request: Request) {
   const startedAt = Date.now();
-  const origin = request.headers.get('origin');
-  if (origin && !resolveCorsOrigin(request)) {
-    return withCors(request, NextResponse.json({ status: 'UNSAFE', isSafe: false, reasons: ['Origin not allowed.'] }, { status: 403 }));
-  }
 
   try {
     const apiKey = request.headers.get('x-api-key');
