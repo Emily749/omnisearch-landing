@@ -248,6 +248,15 @@ export interface EvaluateInput {
   restrictions?: string[];
   mayContainRestrictions?: string[];
   macros?: MacroThresholds;
+  // Categories from an optional AI-assisted second pass over the same
+  // text (see lib/ai-categorize.ts) — unioned into the keyword matcher's
+  // own findings, never a replacement for them. The keyword matcher is
+  // deterministic and covered by tests; AI can only ever ADD a category
+  // it independently spotted, never remove one the matcher already found.
+  // Untrusted values are filtered against the known category list before
+  // use, same as any other external input.
+  extraIngredientCategories?: string[];
+  extraTraceCategories?: string[];
 }
 
 export interface EvaluateResult {
@@ -270,6 +279,8 @@ export function evaluateProduct(input: EvaluateInput): EvaluateResult {
     restrictions = [],
     mayContainRestrictions = [],
     macros = {},
+    extraIngredientCategories = [],
+    extraTraceCategories = [],
   } = input;
 
   const cleanIngredients = stripAdvisoryBoilerplate(rawIngredients);
@@ -280,10 +291,18 @@ export function evaluateProduct(input: EvaluateInput): EvaluateResult {
   const normalizedTrace = normalizeInput(cleanTraces);
   const normalizedNutrition = normalizeInput(nutritionText);
 
+  const knownCategories = new Set(Object.keys(ALLERGEN_KNOWLEDGE_GRAPH));
   const ingredientCategories = detectAllergenCategories(normalizedContext);
+  for (const category of extraIngredientCategories) {
+    if (knownCategories.has(category)) ingredientCategories.add(category);
+  }
+
   const traceCategories = detectAllergenCategories(
     `${normalizedTrace} ${(normalizedContext.match(/may contain[^.]+/g) || []).join(" ")}`
   );
+  for (const category of extraTraceCategories) {
+    if (knownCategories.has(category)) traceCategories.add(category);
+  }
 
   const restrictedCategories = categoriesFromIds(restrictions, RESTRICTION_TO_CATEGORIES);
   const traceSensitiveCategories = categoriesFromIds(mayContainRestrictions, MAY_CONTAIN_TO_CATEGORIES);

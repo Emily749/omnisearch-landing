@@ -5,6 +5,7 @@ import {
   evaluateProduct,
   type MacroThresholds,
 } from '@/lib/allergen-engine';
+import { getAiCategories } from '@/lib/ai-categorize';
 
 interface ProductRequestBody {
   name?: string;
@@ -187,6 +188,12 @@ export async function POST(request: Request) {
       return addRateLimitHeaders(response, rate.remaining, rate.resetAt);
     }
 
+    // Best-effort AI second pass — cached per distinct product text, and
+    // never allowed to remove a category the keyword matcher already
+    // found (see evaluateProduct). Any failure here just yields empty
+    // arrays, so this can never turn a working request into a broken one.
+    const aiCategories = await getAiCategories(name, raw_ingredients, manufacturing_traces);
+
     const result = evaluateProduct({
       name,
       rawIngredients: raw_ingredients,
@@ -194,7 +201,9 @@ export async function POST(request: Request) {
       nutritionText: nutrition_text,
       restrictions,
       mayContainRestrictions,
-      macros
+      macros,
+      extraIngredientCategories: aiCategories.ingredientCategories,
+      extraTraceCategories: aiCategories.traceCategories
     });
 
     const response = withCors(

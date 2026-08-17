@@ -295,3 +295,45 @@ describe("empty or missing input never crashes and defaults safe", () => {
     expect(result.status).toBe("SAFE");
   });
 });
+
+describe("AI-assisted extra categories (optional second pass)", () => {
+  it("an AI-spotted ingredient category can flag UNSAFE even if the keyword matcher missed it", () => {
+    const result = safe({
+      rawIngredients: "A mystery seasoning blend",
+      restrictions: ["peanuts"],
+      extraIngredientCategories: ["PEANUTS"],
+    });
+    expect(result.status).toBe("UNSAFE");
+  });
+
+  it("an AI-spotted trace category can flag CAUTION even if the keyword matcher missed it", () => {
+    const result = safe({
+      rawIngredients: "Potatoes, Salt",
+      manufacturingTraces: "Processed in a facility with other products",
+      mayContainRestrictions: ["nuts"],
+      extraTraceCategories: ["TREE_NUTS"],
+    });
+    expect(result.status).toBe("CAUTION");
+  });
+
+  it("unknown/untrusted category strings from AI are silently ignored, never crash", () => {
+    const result = safe({
+      rawIngredients: "Potatoes, Salt",
+      restrictions: ["gluten"],
+      extraIngredientCategories: ["NOT_A_REAL_CATEGORY", "'; DROP TABLE products;"],
+    });
+    expect(result.status).toBe("SAFE");
+  });
+
+  it("AI categories can only ADD findings, never remove a keyword match already made", () => {
+    // No mechanism exists for extraIngredientCategories to suppress a
+    // real match — this documents that invariant rather than testing a
+    // specific code path, since there's nothing that could remove one.
+    const result = safe({
+      rawIngredients: "Wheat Flour, Water, Salt",
+      restrictions: ["gluten"],
+      extraIngredientCategories: [],
+    });
+    expect(result.status).toBe("UNSAFE");
+  });
+});
