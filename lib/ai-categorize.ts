@@ -51,7 +51,7 @@ async function callGemini(name: string, ingredients: string, traces: string): Pr
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
 
-  const model = process.env.GEMINI_MODEL || "gemini-2.0-flash";
+  const model = process.env.GEMINI_MODEL || "gemini-3.6-flash";
   const categoryList = Array.from(KNOWN_CATEGORIES).join(", ");
 
   const prompt = `You are extracting allergen category information from grocery product text for a safety-critical allergy-checking tool. Be conservative: if it's genuinely ambiguous whether an allergen is present, include it rather than omit it.
