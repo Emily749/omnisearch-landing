@@ -69,39 +69,51 @@ ingredientCategories = categories actually present as ingredients in this specif
 traceCategories = categories mentioned only as possible cross-contamination ("may contain") traces, not as actual ingredients.
 If nothing applies, return empty arrays for the relevant field.`;
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const body = JSON.stringify({
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: { responseMimeType: "application/json", temperature: 0 },
+  });
 
-  try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-      {
+  // A concurrency cap on the caller keeps bursts well under the free
+  // tier's rate limit in the common case, but a single short retry on a
+  // 429 is cheap insurance against the odd request that still clips it —
+  // one retry only, so a genuinely exhausted quota still fails fast.
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
+
+    try {
+      const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         signal: controller.signal,
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { responseMimeType: "application/json", temperature: 0 },
-        }),
+        body,
+      });
+
+      if (response.status === 429 && attempt === 0) {
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        continue;
       }
-    );
+      if (!response.ok) return null;
 
-    if (!response.ok) return null;
+      const data = await response.json();
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (typeof text !== "string") return null;
 
-    const data = await response.json();
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (typeof text !== "string") return null;
-
-    const parsed = JSON.parse(text);
-    return {
-      ingredientCategories: sanitizeCategories(parsed.ingredientCategories),
-      traceCategories: sanitizeCategories(parsed.traceCategories),
-    };
-  } catch {
-    return null;
-  } finally {
-    clearTimeout(timeout);
+      const parsed = JSON.parse(text);
+      return {
+        ingredientCategories: sanitizeCategories(parsed.ingredientCategories),
+        traceCategories: sanitizeCategories(parsed.traceCategories),
+      };
+    } catch {
+      return null;
+    } finally {
+      clearTimeout(timeout);
+    }
   }
+
+  return null;
 }
 
 export async function getAiCategories(name: string, ingredients: string, traces: string): Promise<AiCategories> {
