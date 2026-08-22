@@ -5,7 +5,7 @@ import {
   evaluateProduct,
   type MacroThresholds,
 } from '@/lib/allergen-engine';
-import { getAiCategories } from '@/lib/ai-categorize';
+import { getOpenFoodFactsCategories } from '@/lib/off-lookup';
 
 interface ProductRequestBody {
   name?: string;
@@ -15,6 +15,7 @@ interface ProductRequestBody {
   restrictions?: string[];
   mayContainRestrictions?: string[];
   macros?: MacroThresholds;
+  product_barcode?: string;
 }
 
 interface RateLimitState {
@@ -177,7 +178,8 @@ export async function POST(request: Request) {
       nutrition_text = '',
       restrictions = [],
       mayContainRestrictions = [],
-      macros = {}
+      macros = {},
+      product_barcode
     } = body as ProductRequestBody;
 
     if (!`${name} ${raw_ingredients}`.trim()) {
@@ -188,11 +190,14 @@ export async function POST(request: Request) {
       return addRateLimitHeaders(response, rate.remaining, rate.resetAt);
     }
 
-    // Best-effort AI second pass — cached per distinct product text, and
-    // never allowed to remove a category the keyword matcher already
-    // found (see evaluateProduct). Any failure here just yields empty
-    // arrays, so this can never turn a working request into a broken one.
-    const aiCategories = await getAiCategories(name, raw_ingredients, manufacturing_traces);
+    // Best-effort second data source — real, community-curated allergen
+    // data from Open Food Facts, looked up by the product's own barcode
+    // when the retailer's page exposes one. Never allowed to remove a
+    // category the keyword matcher already found (see evaluateProduct).
+    // Any failure (no barcode, not found, network error) just yields
+    // nothing extra, so this can never turn a working request into a
+    // broken one.
+    const offCategories = await getOpenFoodFactsCategories(product_barcode);
 
     const result = evaluateProduct({
       name,
@@ -202,8 +207,8 @@ export async function POST(request: Request) {
       restrictions,
       mayContainRestrictions,
       macros,
-      extraIngredientCategories: aiCategories.ingredientCategories,
-      extraTraceCategories: aiCategories.traceCategories
+      extraIngredientCategories: offCategories.ingredientCategories,
+      extraTraceCategories: offCategories.traceCategories
     });
 
     const response = withCors(
