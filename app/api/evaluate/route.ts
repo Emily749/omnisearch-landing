@@ -33,7 +33,13 @@ const ALLOWED_MACRO_FIELDS: (keyof MacroThresholds)[] = [
 ];
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
-const RATE_LIMIT_MAX_REQUESTS = Number(process.env.TRUSTTAG_RATE_LIMIT_PER_MINUTE || '120');
+// Raised from the original 120: the extension's per-page concurrency went
+// up (3 -> 6) once Gemini's tiny free-tier limit was no longer a factor,
+// and one active user briskly scrolling several listing pages can
+// legitimately cross 120 evaluate calls/minute. This is our own edge
+// function, not a scarce third-party resource — the limit exists to deter
+// abuse, not because of a real capacity ceiling, so there's room to raise it.
+const RATE_LIMIT_MAX_REQUESTS = Number(process.env.TRUSTTAG_RATE_LIMIT_PER_MINUTE || '300');
 
 declare global {
   var __trusttagRateLimiter: Map<string, RateLimitState> | undefined;
