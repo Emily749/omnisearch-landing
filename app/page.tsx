@@ -179,9 +179,9 @@ export default function Home() {
               <div className="overflow-hidden rounded-2xl border border-border bg-ink-2">
                 <Image
                   src="/demo-tesco.png"
-                  alt="Tesco chocolate search results with every product card bordered green as safe for the saved profile"
+                  alt="Tesco chocolate search results with wheat-based products like KitKat and Cadbury Fingers bordered red and labelled Contains GLUTEN, while a genuinely wheat-free product stays green"
                   width={1568}
-                  height={549}
+                  height={775}
                   sizes="(min-width: 1152px) 560px, 100vw"
                   className="w-full"
                 />
