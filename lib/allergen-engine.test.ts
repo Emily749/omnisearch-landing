@@ -46,6 +46,26 @@ describe("the reported bug: boilerplate legend text falsely flagging plain produ
     expect(cleaned).toContain("Potatoes, Salt");
     expect(cleaned).toContain("Suitable for freezing");
   });
+
+  it("stripAdvisoryBoilerplate doesn't swallow real ingredients when there's no period near 'bold'", () => {
+    // Regression: confirmed live on a Waitrose bread page, whose scraped
+    // block runs ingredients/lifestyle/warnings together with no
+    // punctuation between sections. The unbounded version of this regex
+    // stripped from the very start of the block (no preceding period) all
+    // the way to the first period found — which didn't arrive until deep
+    // into an unrelated "Lifestyle... Warnings..." tail, taking the real
+    // "Wheat flour..." ingredients (and everything after it, up to the
+    // "bold" mention) with it and making the loaf look gluten-free. The
+    // real ingredients list ran well over 200 characters before reaching
+    // the "bold" mention, which is what the bound below relies on.
+    const runOn =
+      "INGREDIENTS: Wheat flour (wheat flour, calcium carbonate, folic acid, iron, niacin, thiamin), water, yeast, salt, " +
+      "preservative (calcium propionate), emulsifier (mono- and diacetyl tartaric acid esters of mono- and diglycerides " +
+      "of fatty acids), rapeseed oil, spirit vinegar, flour treatment agent (ascorbic acid) " +
+      "For allergens see ingredients in bold Lifestyle This product is suitable for Vegans This product is suitable for Vegetarians. Warnings The plastic closure may be harmful if swallowed.";
+    const cleaned = stripAdvisoryBoilerplate(runOn);
+    expect(cleaned.toLowerCase()).toContain("wheat flour");
+  });
 });
 
 describe("'-free' claims never read as containing the allergen", () => {

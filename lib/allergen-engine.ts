@@ -100,7 +100,16 @@ const FODMAP_GRAINS = /\b(wheat|barley|rye)\b/i;
 // about this product — so it must never reach the keyword matcher. Real
 // ingredient and "may contain" text essentially never uses the word
 // "bold", so dropping any clause containing it is a safe, low-risk filter.
-const BOLD_LEGEND_CLAUSE = /[^.\n]*\bbold\b[^.\n]*[.\n]?/gi;
+// Bounded on both sides of "bold" (same reasoning as FREE_FROM_CLAUSE
+// below): without a bound, a source with no period near "bold" — several
+// retailer pages concatenate ingredients/lifestyle/warnings into one
+// run-on block with no punctuation between sections — lets this eat
+// hundreds of characters of real, unrelated content in both directions.
+// Confirmed live: a Waitrose bread page's real "Wheat flour..."
+// ingredients were entirely swallowed this way, leaving only an
+// unrelated "Lifestyle... Warnings..." tail and making the product look
+// gluten-free.
+const BOLD_LEGEND_CLAUSE = /[^.\n]{0,200}\bbold\b[^.\n]{0,200}[.\n]?/gi;
 
 export function stripAdvisoryBoilerplate(text = ""): string {
   return String(text).replace(BOLD_LEGEND_CLAUSE, " ");
