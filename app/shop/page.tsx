@@ -69,7 +69,7 @@ export default async function ShopPage() {
                   href={`/api/go/${retailer.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-6 inline-flex items-center justify-center rounded-full bg-brand py-2.5 text-sm font-semibold text-ink transition hover:bg-brand-strong hover:text-white"
+                  className="mt-6 inline-flex items-center justify-center rounded-full bg-brand py-2.5 text-sm font-semibold text-on-brand transition hover:bg-brand-strong hover:text-white"
                 >
                   Continue to {retailer.name}
                 </a>

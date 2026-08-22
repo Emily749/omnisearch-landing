@@ -103,7 +103,7 @@ export function ProfileForm({
 
       <button
         type="submit"
-        className="w-full rounded-lg bg-brand py-3 text-sm font-semibold text-ink transition hover:bg-brand-strong hover:text-white sm:w-auto sm:px-8"
+        className="w-full rounded-lg bg-brand py-3 text-sm font-semibold text-on-brand transition hover:bg-brand-strong hover:text-white sm:w-auto sm:px-8"
       >
         {submitLabel}
       </button>

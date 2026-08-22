@@ -45,7 +45,7 @@ export default async function SignupPage({
 
           <button
             type="submit"
-            className="w-full rounded-lg bg-brand py-2.5 text-sm font-semibold text-ink transition hover:bg-brand-strong hover:text-white"
+            className="w-full rounded-lg bg-brand py-2.5 text-sm font-semibold text-on-brand transition hover:bg-brand-strong hover:text-white"
           >
             Create profile
           </button>

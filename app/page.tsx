@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { NavBar } from "@/components/NavBar";
 import { Footer } from "@/components/Footer";
 import { RetailerBadge } from "@/components/RetailerBadge";
@@ -26,6 +27,24 @@ const STATS = [
   { value: "17", label: "Allergens & intolerances covered" },
   { value: "<1s", label: "Per-product check, live as you browse" },
   { value: "3", label: "Retailers today — more on the way" },
+];
+
+const LEGEND = [
+  {
+    color: "var(--safe)",
+    label: "Safe",
+    body: "Nothing in your profile was found — shop normally.",
+  },
+  {
+    color: "var(--caution)",
+    label: "Caution",
+    body: "A “may contain” trace warning matches something you flagged.",
+  },
+  {
+    color: "var(--unsafe)",
+    label: "Conflict",
+    body: "A real ingredient matches a restriction in your profile.",
+  },
 ];
 
 export default function Home() {
@@ -61,7 +80,7 @@ export default function Home() {
             <div className="mt-9 flex flex-wrap items-center gap-4">
               <Link
                 href="/signup"
-                className="rounded-full bg-brand px-6 py-3 text-sm font-semibold text-ink transition hover:bg-brand-strong hover:text-white"
+                className="rounded-full bg-brand px-6 py-3 text-sm font-semibold text-on-brand transition hover:bg-brand-strong hover:text-white"
               >
                 Build your free profile
               </Link>
@@ -105,6 +124,78 @@ export default function Home() {
                   <p className="mt-2 text-sm leading-relaxed text-text-muted">{step.body}</p>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="demo" className="border-t border-border/80">
+          <div className="mx-auto max-w-6xl px-6 py-24">
+            <div className="max-w-xl">
+              <span className="text-xs font-medium uppercase tracking-[0.18em] text-brand">
+                See it in action
+              </span>
+              <h2 className="mt-3 font-display text-3xl text-text sm:text-4xl">
+                Every card, coloured before you click.
+              </h2>
+              <p className="mt-4 text-sm leading-relaxed text-text-muted">
+                Real results from a live Sainsbury&apos;s search, with gluten flagged as a
+                restriction. No screenshots were staged for this — that&apos;s the
+                companion running as you&apos;d actually see it.
+              </p>
+            </div>
+
+            <div className="mt-10 overflow-hidden rounded-2xl border border-border bg-ink-2">
+              <Image
+                src="/demo-tricolor.png"
+                alt="Sainsbury's granola search results, each product card automatically bordered green for safe, amber for a may-contain caution, or red for a confirmed gluten conflict"
+                width={1568}
+                height={425}
+                sizes="(min-width: 1152px) 1152px, 100vw"
+                className="w-full"
+              />
+            </div>
+
+            <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+              {LEGEND.map((item) => (
+                <div
+                  key={item.label}
+                  className="flex items-start gap-3 rounded-xl border border-border bg-ink-2 p-4"
+                >
+                  <span
+                    className="mt-1 h-3 w-3 shrink-0 rounded-full"
+                    style={{ background: item.color }}
+                  />
+                  <div>
+                    <p className="text-sm font-semibold text-text">{item.label}</p>
+                    <p className="mt-0.5 text-xs leading-relaxed text-text-muted">
+                      {item.body}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="overflow-hidden rounded-2xl border border-border bg-ink-2">
+                <Image
+                  src="/demo-tesco.png"
+                  alt="Tesco chocolate search results with every product card bordered green as safe for the saved profile"
+                  width={1568}
+                  height={549}
+                  sizes="(min-width: 1152px) 560px, 100vw"
+                  className="w-full"
+                />
+              </div>
+              <div className="overflow-hidden rounded-2xl border border-border bg-ink-2">
+                <Image
+                  src="/demo-unsafe.png"
+                  alt="Sainsbury's cookie search results with several product cards bordered red and labelled Contains GLUTEN"
+                  width={1568}
+                  height={642}
+                  sizes="(min-width: 1152px) 560px, 100vw"
+                  className="w-full"
+                />
+              </div>
             </div>
           </div>
         </section>
@@ -206,7 +297,7 @@ export default function Home() {
             </p>
             <Link
               href="/signup"
-              className="mt-8 inline-flex rounded-full bg-brand px-7 py-3 text-sm font-semibold text-ink transition hover:bg-brand-strong hover:text-white"
+              className="mt-8 inline-flex rounded-full bg-brand px-7 py-3 text-sm font-semibold text-on-brand transition hover:bg-brand-strong hover:text-white"
             >
               Get started free
             </Link>

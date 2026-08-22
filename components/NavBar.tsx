@@ -25,6 +25,9 @@ export async function NavBar() {
           <Link href="/#how-it-works" className="transition hover:text-text">
             How it works
           </Link>
+          <Link href="/#demo" className="transition hover:text-text">
+            See it in action
+          </Link>
           <Link href="/#mission" className="transition hover:text-text">
             Our mission
           </Link>
@@ -60,7 +63,7 @@ export async function NavBar() {
               </Link>
               <Link
                 href="/signup"
-                className="rounded-full bg-brand px-4 py-2 text-sm font-medium text-ink transition hover:bg-brand-strong hover:text-white"
+                className="rounded-full bg-brand px-4 py-2 text-sm font-medium text-on-brand transition hover:bg-brand-strong hover:text-white"
               >
                 Get started free
               </Link>

@@ -1,24 +1,29 @@
 @import "tailwindcss";
 
 :root {
-  --ink: #0b0f13;
-  --ink-2: #11161c;
-  --ink-3: #171d24;
-  --border: #232b33;
+  --ink: #faf8f3;
+  --ink-2: #f2efe6;
+  --ink-3: #ebe6d8;
+  --border: #e0dac9;
   --paper: #f6f4ee;
-  --text: #edeff0;
-  --text-muted: #98a3aa;
-  --brand: #22b28c;
+  --text: #211d16;
+  --text-muted: #6f6a5c;
+  --brand: #1e9e7c;
   --brand-strong: #17835f;
-  --brand-soft: rgba(34, 178, 140, 0.14);
-  --gold: #d9a94e;
-  --safe: #22b28c;
-  --caution: #e0a63e;
-  --unsafe: #e2596b;
+  --brand-soft: rgba(30, 158, 124, 0.12);
+  --gold: #b8863a;
+  --safe: #1e9e7c;
+  --caution: #b57a1e;
+  --unsafe: #c2384f;
+  /* Dedicated dark text colour for content sitting directly on the bright
+     --brand teal (primary CTA buttons) — kept independent of --ink so it
+     stays legible regardless of whether --ink itself is light or dark. */
+  --on-brand: #0b0f13;
 }
 
 @theme inline {
   --color-ink: var(--ink);
+  --color-on-brand: var(--on-brand);
   --color-ink-2: var(--ink-2);
   --color-ink-3: var(--ink-3);
   --color-border: var(--border);

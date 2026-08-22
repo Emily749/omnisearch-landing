@@ -4,7 +4,7 @@ import { Footer } from "@/components/Footer";
 const STEPS = [
   {
     title: "Download the companion",
-    body: "Get the latest trusttag-extension.zip from the TrustTag GitHub releases page and unzip it.",
+    body: "Grab trusttag-extension.zip below and unzip it — you'll get a trusttag-extension folder.",
   },
   {
     title: "Open Chrome's extensions page",
@@ -37,6 +37,14 @@ export default function ExtensionPage() {
             developers test extensions — it&apos;s four short steps, and only takes a
             minute.
           </p>
+
+          <a
+            href="/trusttag-extension.zip"
+            download
+            className="mt-8 inline-flex items-center gap-2 rounded-full bg-brand px-6 py-3 text-sm font-semibold text-on-brand transition hover:bg-brand-strong hover:text-white"
+          >
+            Download trusttag-extension.zip
+          </a>
 
           <ol className="mt-10 space-y-6">
             {STEPS.map((step, i) => (
