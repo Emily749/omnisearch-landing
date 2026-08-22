@@ -151,6 +151,27 @@ export function detectAllergenCategories(input = ""): Set<string> {
   return result;
 }
 
+const MAY_CONTAIN_PATTERN = /may contain[^.]+/gi;
+
+// A "may contain X" clause is a trace/cross-contamination warning, not a
+// statement that X is actually an ingredient — but it commonly sits right
+// inside the same block of text as the real ingredients (either because a
+// retailer's page doesn't separate them, or because Open Food Facts
+// contributors often paste the whole label, trace warning included, into
+// one ingredients field). Left in place, a naive "does this text mention
+// the word wheat" check would wrongly promote "may contain wheat" into a
+// hard "contains wheat" ingredient match. These two functions let a
+// caller pull such clauses out for trace detection and exclude them from
+// ingredient detection — same split the engine already makes for the
+// retailer's own manufacturing_traces field.
+export function extractMayContainClauses(text: string): string[] {
+  return text.match(MAY_CONTAIN_PATTERN) || [];
+}
+
+export function stripMayContainClauses(text: string): string {
+  return text.replace(MAY_CONTAIN_PATTERN, " ");
+}
+
 export function categoriesFromIds(ids: string[], mapping: Record<string, string[]>): Set<string> {
   const categories = new Set<string>();
   for (const id of ids) {
@@ -292,13 +313,14 @@ export function evaluateProduct(input: EvaluateInput): EvaluateResult {
   const normalizedNutrition = normalizeInput(nutritionText);
 
   const knownCategories = new Set(Object.keys(ALLERGEN_KNOWLEDGE_GRAPH));
-  const ingredientCategories = detectAllergenCategories(normalizedContext);
+  const contextMayContainClauses = extractMayContainClauses(normalizedContext);
+  const ingredientCategories = detectAllergenCategories(stripMayContainClauses(normalizedContext));
   for (const category of extraIngredientCategories) {
     if (knownCategories.has(category)) ingredientCategories.add(category);
   }
 
   const traceCategories = detectAllergenCategories(
-    `${normalizedTrace} ${(normalizedContext.match(/may contain[^.]+/g) || []).join(" ")}`
+    `${normalizedTrace} ${contextMayContainClauses.join(" ")}`
   );
   for (const category of extraTraceCategories) {
     if (knownCategories.has(category)) traceCategories.add(category);
@@ -317,7 +339,14 @@ export function evaluateProduct(input: EvaluateInput): EvaluateResult {
   }
 
   for (const category of traceSensitiveCategories) {
-    if (traceCategories.has(category) && !restrictedCategories.has(category)) {
+    // Skip only if THIS category already produced a hard reason above —
+    // not merely because the user also listed it as a hard restriction.
+    // Someone can have gluten as both a hard restriction and a "caution
+    // on traces" pick; if the product has no gluten ingredient but does
+    // carry a "may contain gluten" warning, that's real information they
+    // asked for and it must still surface as a caution, not get silently
+    // dropped because gluten also happens to appear in restrictedCategories.
+    if (traceCategories.has(category) && !ingredientCategories.has(category)) {
       cautionReasons.push(`May contain ${category}.`);
     }
   }

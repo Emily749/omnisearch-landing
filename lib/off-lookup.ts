@@ -1,4 +1,9 @@
-import { ALLERGEN_KNOWLEDGE_GRAPH, detectAllergenCategories } from "./allergen-engine";
+import {
+  ALLERGEN_KNOWLEDGE_GRAPH,
+  detectAllergenCategories,
+  extractMayContainClauses,
+  stripMayContainClauses,
+} from "./allergen-engine";
 
 // Free, open, non-AI second data source: Open Food Facts (openfoodfacts.org)
 // is a community-maintained database of real grocery products, keyed by
@@ -89,10 +94,19 @@ export async function getOpenFoodFactsCategories(barcode: unknown): Promise<OffC
     // the retailer's page happened to render — running our existing,
     // tested keyword matcher over it too (not trusting OFF's tags alone)
     // catches cases where OFF's community tagging is stale but its
-    // ingredients text is current, or vice versa.
+    // ingredients text is current, or vice versa. Contributors often
+    // paste the entire label verbatim into this one field, trace warning
+    // included ("...flavourings, may contain nuts, wheat, milk solids..."),
+    // so that clause has to be pulled out before treating the rest as
+    // real ingredients — otherwise "may contain wheat" gets misread as a
+    // hard "contains wheat" (confirmed live on Cadbury Dairy Milk).
     const offIngredientsText = data.product.ingredients_text_en || data.product.ingredients_text || "";
-    for (const category of detectAllergenCategories(offIngredientsText)) {
+    const offMayContainClauses = extractMayContainClauses(offIngredientsText);
+    for (const category of detectAllergenCategories(stripMayContainClauses(offIngredientsText))) {
       ingredientCategories.add(category);
+    }
+    for (const category of detectAllergenCategories(offMayContainClauses.join(" "))) {
+      traceCategories.add(category);
     }
 
     return {

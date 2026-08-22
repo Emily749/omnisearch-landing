@@ -178,6 +178,42 @@ describe("'may contain' traces are a caution, never a hard block", () => {
     });
     expect(result.status).toBe("UNSAFE");
   });
+
+  it("the same category as both a hard restriction and a trace caution still warns when only the trace applies", () => {
+    // Regression: confirmed live on Cadbury Dairy Milk. A user can have
+    // gluten as both "avoid completely" and "caution on may contain" —
+    // when a product has no actual gluten ingredient but does carry a
+    // "may contain gluten" warning, that must still surface as CAUTION,
+    // not get silently swallowed because gluten is also a hard restriction.
+    const result = safe({
+      rawIngredients: "Milk, Sugar, Cocoa Butter, Emulsifiers, Flavourings, may contain nuts, wheat",
+      restrictions: ["gluten"],
+      mayContainRestrictions: ["gluten"],
+    });
+    expect(result.status).toBe("CAUTION");
+    expect(result.reasons).toContain("May contain GLUTEN.");
+  });
+
+  it("a 'may contain' clause embedded inside the ingredients text itself is still only a caution, never a hard block", () => {
+    // Regression test: confirmed live on Cadbury Dairy Milk via Open Food
+    // Facts, whose community-entered ingredients text runs the trace
+    // warning straight into the ingredient list with no separator:
+    // "...flavourings, may contain nuts, wheat, milk solids 20%...".
+    // Wheat here must not be read as an actual ingredient.
+    const embedded = safe({
+      rawIngredients:
+        "Milk, Sugar, Cocoa Butter, Cocoa Mass, Vegetable Fats, Emulsifiers, Flavourings, may contain nuts, wheat, milk solids 20% minimum",
+      restrictions: ["gluten"],
+    });
+    expect(embedded.status).toBe("SAFE");
+
+    const withCaution = safe({
+      rawIngredients:
+        "Milk, Sugar, Cocoa Butter, Cocoa Mass, Vegetable Fats, Emulsifiers, Flavourings, may contain nuts, wheat, milk solids 20% minimum",
+      mayContainRestrictions: ["gluten"],
+    });
+    expect(withCaution.status).toBe("CAUTION");
+  });
 });
 
 describe("lifestyle diets", () => {

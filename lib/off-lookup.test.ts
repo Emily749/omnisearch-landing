@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { mapTags, getOpenFoodFactsCategories } from "./off-lookup";
 
 describe("mapTags: Open Food Facts allergen tags -> our category vocabulary", () => {
@@ -57,5 +57,36 @@ describe("getOpenFoodFactsCategories: input validation (no network call needed)"
   it("returns empty for a barcode that's the wrong length", async () => {
     const result = await getOpenFoodFactsCategories("123");
     expect(result).toEqual({ ingredientCategories: [], traceCategories: [] });
+  });
+});
+
+describe("getOpenFoodFactsCategories: a 'may contain' clause embedded in OFF's ingredients text", () => {
+  const originalFetch = global.fetch;
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+  });
+
+  it("real Cadbury Dairy Milk response: wheat/nuts from 'may contain' land in traces, not ingredients", async () => {
+    // Captured live from world.openfoodfacts.org for barcode 07622201461959.
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        status: 1,
+        product: {
+          allergens_tags: ["en:milk"],
+          traces_tags: ["en:gluten", "en:nuts"],
+          ingredients_text_en:
+            "milk**, sugar, cocoa butter, cocoa mass, vegetable fats (palm, shea), emulsifiers (e442, e476), flavourings, may contain nuts, wheat, milk solids 20 % minimum, actual 23 %, cocoa solids sucres",
+        },
+      }),
+    }) as unknown as typeof fetch;
+
+    const result = await getOpenFoodFactsCategories("07622201461959");
+
+    expect(result.ingredientCategories).toEqual(["MILK"]);
+    expect(result.ingredientCategories).not.toContain("GLUTEN");
+    expect(result.ingredientCategories).not.toContain("TREE_NUTS");
+    expect(result.traceCategories).toEqual(expect.arrayContaining(["GLUTEN", "TREE_NUTS"]));
   });
 });
